@@ -386,7 +386,7 @@ lower_cons1_cv_51(cv_51) .. C - alpha_cv_51(cv_51) =g= 0;
 lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51,z5)) + y(cv_51) * beta_cv_51 - (1-xi_cv_51(cv_51)) =g= 0;
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
-C.l = 10;
+C.l = 30;
 alpha_cv_11.l(cv_11) = 2;
 alpha_cv_21.l(cv_21) = 2;
 alpha_cv_31.l(cv_31) = 2;
