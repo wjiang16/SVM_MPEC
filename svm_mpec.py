@@ -156,17 +156,16 @@ B_cv_1(cv_1)
 B_cv_2(cv_2)
 lambda_cv_1(cv_1)
 lambda_cv_2(cv_2)
+gap1_cv_1
+gap2_cv_1
+gap1_cv_2
+gap2_cv_2
 ;
 Variable
 C
 beta_cv_1   intercept term for the separating hyperplane
 beta_cv_2
 L       cross-validation error using accuracy measure
-gap1_cv_1
-gap2_cv_1
-gap1_cv_2
-gap2_cv_2
-
 ;
 Equations
 obj     objective function
@@ -187,9 +186,9 @@ lower_cons3_cv_1
 lower_cons3_cv_2
 ;
 
-obj ..  L =e= 0.5*(sum(cv_1, B_cv_1(cv_1))/card(cv_1) + sum(cv_2, B_cv_2(cv_2))/card(cv_2)) ;
-test_duality_cv_1 .. sum(cv_1, B_cv_1(cv_1)*(sum(cv_2, alpha_cv_2(cv_2) * K_y(cv_1, cv_2) * K_x(cv_1,cv_2)) + y(cv_1) * beta_cv_2) + lambda_cv_1(cv_1)) =e= 0;
-test_duality_cv_2 .. sum(cv_2, B_cv_2(cv_2)*(sum(cv_1, alpha_cv_1(cv_1) * K_y(cv_1, cv_2) * K_x(cv_1,cv_2)) + y(cv_2) * beta_cv_1) + lambda_cv_2(cv_2)) =e= 0;
+obj ..  L =e= 0.5*(sum(cv_1, B_cv_1(cv_1))/card(cv_1) + sum(cv_2, B_cv_2(cv_2))/card(cv_2)) + gap1_cv_1 + gap1_cv_2 + gap2_cv_1 + gap2_cv_2 ;
+test_duality_cv_1 .. gap1_cv_1 =e= sum(cv_1, B_cv_1(cv_1)*(sum(cv_2, alpha_cv_2(cv_2) * K_y(cv_1, cv_2) * K_x(cv_1,cv_2)) + y(cv_1) * beta_cv_2) + lambda_cv_1(cv_1));
+test_duality_cv_2 .. gap1_cv_2 =e= sum(cv_2, B_cv_2(cv_2)*(sum(cv_1, alpha_cv_1(cv_1) * K_y(cv_1, cv_2) * K_x(cv_1,cv_2)) + y(cv_2) * beta_cv_1) + lambda_cv_2(cv_2));
 dual_cons1_cv_1(cv_1) .. sum(cv_2, alpha_cv_2(cv_2) * K_y(cv_1, cv_2) * K_x(cv_1,cv_2)) + y(cv_1) * beta_cv_2 + lambda_cv_1(cv_1) =g= 0;
 dual_cons1_cv_2(cv_2) .. sum(cv_1, alpha_cv_1(cv_1) * K_y(cv_2, cv_1) * K_x(cv_2,cv_1)) + y(cv_2) * beta_cv_1 + lambda_cv_2(cv_2) =g= 0;
 
@@ -197,8 +196,8 @@ dual_cons1_cv_2(cv_2) .. sum(cv_1, alpha_cv_1(cv_1) * K_y(cv_2, cv_1) * K_x(cv_2
 test_cons2_cv_1(cv_1) .. 1 - B_cv_1(cv_1) =g= 0;
 test_cons2_cv_2(cv_2) .. 1 - B_cv_2(cv_2) =g= 0;
 
-train_duality_cv_1 .. sum(cv_1, alpha_cv_1(cv_1)) -  sum(cv_1, sum(z1, alpha_cv_1(cv_1) * alpha_cv_1(z1) * K_y(cv_1, z1) * K_x(cv_1,z1))) - C * sum(cv_1,xi_cv_1(cv_1)) =e= 0;
-train_duailty_cv_2 .. sum(cv_2, alpha_cv_2(cv_2)) -  sum(cv_2, sum(z2, alpha_cv_2(cv_2) * alpha_cv_2(z2) * K_y(cv_2, z2) * K_x(cv_2,z2))) - C * sum(cv_2,xi_cv_2(cv_2)) =e= 0;
+train_duality_cv_1 .. -gap2_cv_1 =e= sum(cv_1, alpha_cv_1(cv_1)) -  sum(cv_1, sum(z1, alpha_cv_1(cv_1) * alpha_cv_1(z1) * K_y(cv_1, z1) * K_x(cv_1,z1))) - C * sum(cv_1,xi_cv_1(cv_1));
+train_duailty_cv_2 .. -gap2_cv_2 =e= sum(cv_2, alpha_cv_2(cv_2)) -  sum(cv_2, sum(z2, alpha_cv_2(cv_2) * alpha_cv_2(z2) * K_y(cv_2, z2) * K_x(cv_2,z2))) - C * sum(cv_2,xi_cv_2(cv_2)) ;
 
 lower_cons1_cv_1(cv_1) .. C - alpha_cv_1(cv_1) =g= 0;
 lower_cons1_cv_2(cv_2) .. C - alpha_cv_2(cv_2) =g= 0;
@@ -211,10 +210,194 @@ alpha_cv_1.l(cv_1) = 2;
 alpha_cv_2.l(cv_2) = 2;
 Model svm_bilevel /all/;
 
-option MPEC=nlpec
+*option MPEC=nlpec
 Solve svm_bilevel using nlp minimizing L;
 Display C.l
 '''
+    def _get_model_text_nlp_cv5(self):
+        return '''
+Sets
+i number of data samples
+cv_1(i) number of sample fold cv_1 test
+cv_11(i) number of sample fold cv_1 train
+cv_2(i) number of sample fold cv_2 test
+cv_21(i) number of sample fold cv_2 train
+cv_3(i) number of sample fold cv_3 test
+cv_31(i) number of sample fold cv_3 train
+cv_4(i) number of sample fold cv_4 test
+cv_41(i) number of sample fold cv_4 train
+cv_5(i) number of sample fold cv_5 test
+cv_51(i) number of sample fold cv_5 train
+;
+Alias(i,z);
+Alias(cv_11, z1);
+Alias(cv_21, z2);
+Alias(cv_31, z3);
+Alias(cv_41, z4);
+Alias(cv_51, z5);
+Parameters
+y(i) target label
+K_y(i,z) y kernel
+K_x(i,z) kernel or inner product
+;
+
+$if not set gdxincname $abort 'no include file name for data file provided'
+$GDXin %gdxincname%
+$load i cv_1 cv_11 cv_2 cv_21 cv_3 cv_31 cv_4 cv_41 cv_5 cv_51 y K_y K_x
+$GDXin
+;
+Positive Variable
+B_cv_1(cv_1)
+lambda_cv_1(cv_1)
+gap_cv_1
+
+alpha_cv_11(cv_11)
+xi_cv_11(cv_11)
+gap_cv_11
+
+B_cv_2(cv_2)
+lambda_cv_2(cv_2)
+gap_cv_2
+
+alpha_cv_21(cv_21)
+xi_cv_21(cv_21)
+gap_cv_21
+
+B_cv_3(cv_3)
+lambda_cv_3(cv_3)
+gap_cv_3
+
+alpha_cv_31(cv_31)
+xi_cv_31(cv_31)
+gap_cv_31
+
+B_cv_4(cv_4)
+lambda_cv_4(cv_4)
+gap_cv_4
+
+alpha_cv_41(cv_41)
+xi_cv_41(cv_41)
+gap_cv_41
+
+B_cv_5(cv_5)
+lambda_cv_5(cv_5)
+gap_cv_5
+
+alpha_cv_51(cv_51)
+xi_cv_51(cv_51)
+gap_cv_51
+;
+Variable
+C
+beta_cv_11   intercept term for the separating hyperplane
+beta_cv_21
+beta_cv_31
+beta_cv_41
+beta_cv_51
+L       cross-validation error using accuracy measure
+;
+Equations
+obj
+test_duality_cv_1
+dual_cons1_cv_1(cv_1)
+test_cons2_cv_1(cv_1)
+train_duailty_cv_11
+lower_cons1_cv_11(cv_11)
+lower_cons2_cv_11(cv_11)
+lower_cons3_cv_11
+
+test_duality_cv_2
+dual_cons1_cv_2(cv_2)
+test_cons2_cv_2(cv_2)
+train_duailty_cv_21
+lower_cons1_cv_21(cv_21)
+lower_cons2_cv_21(cv_21)
+lower_cons3_cv_21
+
+test_duality_cv_3
+dual_cons1_cv_3(cv_3)
+test_cons2_cv_3(cv_3)
+train_duailty_cv_31
+lower_cons1_cv_31(cv_31)
+lower_cons2_cv_31(cv_31)
+lower_cons3_cv_31
+
+test_duality_cv_4
+dual_cons1_cv_4(cv_4)
+test_cons2_cv_4(cv_4)
+train_duailty_cv_41
+lower_cons1_cv_41(cv_41)
+lower_cons2_cv_41(cv_41)
+lower_cons3_cv_41
+
+test_duality_cv_5
+dual_cons1_cv_5(cv_5)
+test_cons2_cv_5(cv_5)
+train_duailty_cv_51
+lower_cons1_cv_51(cv_51)
+lower_cons2_cv_51(cv_51)
+lower_cons3_cv_51
+;
+obj ..  L =e= 0.2*(sum(cv_1, B_cv_1(cv_1))/card(cv_1) + sum(cv_2, B_cv_2(cv_2))/card(cv_2) + sum(cv_3, B_cv_3(cv_3))/card(cv_3)
+                + sum(cv_4, B_cv_4(cv_4))/card(cv_4) + sum(cv_5, B_cv_5(cv_5))/card(cv_5)
+        ) + gap_cv_1 + 100*gap_cv_11 + gap_cv_2 + 100*gap_cv_21 + gap_cv_3 + 100*gap_cv_31 +gap_cv_4 +100*gap_cv_41 + gap_cv_5 + 100*gap_cv_51 ;
+test_duality_cv_1 .. gap_cv_1 =e= sum(cv_1, B_cv_1(cv_1)*(sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11) + lambda_cv_1(cv_1));
+dual_cons1_cv_1(cv_1) .. sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11 + lambda_cv_1(cv_1) =g= 0;
+test_cons2_cv_1(cv_1) .. 1 - B_cv_1(cv_1) =g= 0;
+
+train_duailty_cv_11 .. -gap_cv_11 =e= sum(cv_11, alpha_cv_11(cv_11)) -  sum(cv_11, sum(z1, alpha_cv_11(cv_11) * alpha_cv_11(z1) * K_y(cv_11, z1) * K_x(cv_11,z1))) - C * sum(cv_11,xi_cv_11(cv_11)) ;
+lower_cons1_cv_11(cv_11) .. C - alpha_cv_11(cv_11) =g= 0;
+lower_cons2_cv_11(cv_11) .. sum(z1, alpha_cv_11(z1) * K_y(cv_11, z1) * K_x(cv_11,z1)) + y(cv_11) * beta_cv_11 - (1-xi_cv_11(cv_11)) =g= 0;
+lower_cons3_cv_11 .. sum(cv_11,alpha_cv_11(cv_11) * y(cv_11) ) =e= 0;
+
+test_duality_cv_2 .. gap_cv_2 =e= sum(cv_2, B_cv_2(cv_2)*(sum(cv_21, alpha_cv_21(cv_21) * K_y(cv_2, cv_21) * K_x(cv_2,cv_21)) + y(cv_2) * beta_cv_21) + lambda_cv_2(cv_2));
+dual_cons1_cv_2(cv_2) .. sum(cv_21, alpha_cv_21(cv_21) * K_y(cv_2, cv_21) * K_x(cv_2,cv_21)) + y(cv_2) * beta_cv_21 + lambda_cv_2(cv_2) =g= 0;
+test_cons2_cv_2(cv_2) .. 1 - B_cv_2(cv_2) =g= 0;
+
+train_duailty_cv_21 .. -gap_cv_21 =e= sum(cv_21, alpha_cv_21(cv_21)) -  sum(cv_21, sum(z2, alpha_cv_21(cv_21) * alpha_cv_21(z2) * K_y(cv_21, z2) * K_x(cv_21,z2))) - C * sum(cv_21,xi_cv_21(cv_21)) ;
+lower_cons1_cv_21(cv_21) .. C - alpha_cv_21(cv_21) =g= 0;
+lower_cons2_cv_21(cv_21) .. sum(z2, alpha_cv_21(z2) * K_y(cv_21, z2) * K_x(cv_21,z2)) + y(cv_21) * beta_cv_21 - (1-xi_cv_21(cv_21)) =g= 0;
+lower_cons3_cv_21 .. sum(cv_21,alpha_cv_21(cv_21) * y(cv_21) ) =e= 0;
+
+test_duality_cv_3 .. gap_cv_3 =e= sum(cv_3, B_cv_3(cv_3)*(sum(cv_31, alpha_cv_31(cv_31) * K_y(cv_3, cv_31) * K_x(cv_3,cv_31)) + y(cv_3) * beta_cv_31) + lambda_cv_3(cv_3));
+dual_cons1_cv_3(cv_3) .. sum(cv_31, alpha_cv_31(cv_31) * K_y(cv_3, cv_31) * K_x(cv_3,cv_31)) + y(cv_3) * beta_cv_31 + lambda_cv_3(cv_3) =g= 0;
+test_cons2_cv_3(cv_3) .. 1 - B_cv_3(cv_3) =g= 0;
+
+train_duailty_cv_31 .. -gap_cv_31 =e= sum(cv_31, alpha_cv_31(cv_31)) -  sum(cv_31, sum(z3, alpha_cv_31(cv_31) * alpha_cv_31(z3) * K_y(cv_31, z3) * K_x(cv_31,z3))) - C * sum(cv_31,xi_cv_31(cv_31)) ;
+lower_cons1_cv_31(cv_31) .. C - alpha_cv_31(cv_31) =g= 0;
+lower_cons2_cv_31(cv_31) .. sum(z3, alpha_cv_31(z3) * K_y(cv_31, z3) * K_x(cv_31,z3)) + y(cv_31) * beta_cv_31 - (1-xi_cv_31(cv_31)) =g= 0;
+lower_cons3_cv_31 .. sum(cv_31,alpha_cv_31(cv_31) * y(cv_31) ) =e= 0;
+
+test_duality_cv_4 .. gap_cv_4 =e= sum(cv_4, B_cv_4(cv_4)*(sum(cv_41, alpha_cv_41(cv_41) * K_y(cv_4, cv_41) * K_x(cv_4,cv_41)) + y(cv_4) * beta_cv_41) + lambda_cv_4(cv_4));
+dual_cons1_cv_4(cv_4) .. sum(cv_41, alpha_cv_41(cv_41) * K_y(cv_4, cv_41) * K_x(cv_4,cv_41)) + y(cv_4) * beta_cv_41 + lambda_cv_4(cv_4) =g= 0;
+test_cons2_cv_4(cv_4) .. 1 - B_cv_4(cv_4) =g= 0;
+
+train_duailty_cv_41 .. -gap_cv_41 =e= sum(cv_41, alpha_cv_41(cv_41)) -  sum(cv_41, sum(z4, alpha_cv_41(cv_41) * alpha_cv_41(z4) * K_y(cv_41, z4) * K_x(cv_41,z4))) - C * sum(cv_41,xi_cv_41(cv_41)) ;
+lower_cons1_cv_41(cv_41) .. C - alpha_cv_41(cv_41) =g= 0;
+lower_cons2_cv_41(cv_41) .. sum(z4, alpha_cv_41(z4) * K_y(cv_41, z4) * K_x(cv_41,z4)) + y(cv_41) * beta_cv_41 - (1-xi_cv_41(cv_41)) =g= 0;
+lower_cons3_cv_41 .. sum(cv_41,alpha_cv_41(cv_41) * y(cv_41) ) =e= 0;
+
+test_duality_cv_5 .. gap_cv_5 =e= sum(cv_5, B_cv_5(cv_5)*(sum(cv_51, alpha_cv_51(cv_51) * K_y(cv_5, cv_51) * K_x(cv_5,cv_51)) + y(cv_5) * beta_cv_51) + lambda_cv_5(cv_5));
+dual_cons1_cv_5(cv_5) .. sum(cv_51, alpha_cv_51(cv_51) * K_y(cv_5, cv_51) * K_x(cv_5,cv_51)) + y(cv_5) * beta_cv_51 + lambda_cv_5(cv_5) =g= 0;
+test_cons2_cv_5(cv_5) .. 1 - B_cv_5(cv_5) =g= 0;
+
+train_duailty_cv_51 .. -gap_cv_51 =e= sum(cv_51, alpha_cv_51(cv_51)) -  sum(cv_51, sum(z5, alpha_cv_51(cv_51) * alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51,z5))) - C * sum(cv_51,xi_cv_51(cv_51)) ;
+lower_cons1_cv_51(cv_51) .. C - alpha_cv_51(cv_51) =g= 0;
+lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51,z5)) + y(cv_51) * beta_cv_51 - (1-xi_cv_51(cv_51)) =g= 0;
+lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
+
+C.l = 10;
+alpha_cv_11.l(cv_11) = 2;
+alpha_cv_21.l(cv_21) = 2;
+alpha_cv_31.l(cv_31) = 2;
+alpha_cv_41.l(cv_41) = 2;
+alpha_cv_51.l(cv_51) = 2;
+Model svm_bilevel /all/;
+
+*option MPEC=nlpec
+Solve svm_bilevel using nlp minimizing L;
+Display L.l, C.l, gap_cv_1.l, gap_cv_11.l, gap_cv_2.l, gap_cv_21.l, gap_cv_3.l, gap_cv_31.l,gap_cv_4.l, gap_cv_41.l, gap_cv_5.l, gap_cv_51.l
+        '''
 
     def fit(self, X, y, cv = 2):
         """
@@ -229,6 +412,8 @@ Display C.l
         cv_train_indices =[]
         cv_test_indices = []
         for train_index, test_index in skf.split(X,y):
+            train_index = [str(i+1) for i in train_index]
+            test_index = [str(i+1) for i in test_index]
             cv_train_indices.append(train_index)
             cv_test_indices.append(test_index)
         ########## Data splitting done  ################################
@@ -237,9 +422,9 @@ Display C.l
         ws = GamsWorkspace(debug = DebugLevel.KeepFiles)
         data_set = range(1, self.number_sample + 1)
         data_set = [str(i) for i in data_set]
-        cv_train = [str(i+1) for i in cv_train_indices[0]]
-        cv_test = [str(i+1) for i in cv_test_indices[0]]
-        print cv_train, cv_test
+        # cv_train = [str(i+1) for i in cv_train_indices[0]]
+        # cv_test = [str(i+1) for i in cv_test_indices[0]]
+        # print cv_train, cv_test
         y_param = dict(zip(data_set, y))
         y = np.matrix(y)
         inner_product_y = np.dot(y.T,y)
@@ -253,17 +438,17 @@ Display C.l
                 K_y_param[(i,j)] = inner_product_y[int(i)-1,int(j)-1]
         db = ws.add_database()
 
-        i = GamsSet(db, "i", 1, "number of data samples")
-        for d in data_set:
-            i.add_record(d)
+        def add_set(set_name, data):
+            i = GamsSet(db, set_name, 1, "number of data samples")
+            for d in data:
+                i.add_record(d)
 
-        cv_1 = GamsSet(db, "cv_1", 1, "Number of sample fold 1")
-        for d in cv_train:
-            cv_1.add_record(d)
-
-        cv_2 = GamsSet(db, "cv_2", 1, "Number of sample fold 2")
-        for d in cv_test:
-            cv_2.add_record(d)
+        add_set("i", data_set)
+        test_set = ['cv_1','cv_2','cv_3','cv_4','cv_5']
+        train_set = ['cv_11','cv_21','cv_31','cv_41','cv_51']
+        for i in range(0, cv):
+            add_set(test_set[i], cv_test_indices[i])
+            add_set(train_set[i], cv_train_indices[i])
 
         K_param_db = GamsParameter(db, "K_x", 2,"kernel or inner product")
         for k, v in Kernel_param.iteritems():
@@ -280,7 +465,7 @@ Display C.l
         # C_db = GamsParameter(db, "C", 0, "regularization parameter")
         # C_db.add_record().value = self.C
 
-        t = GamsJob(ws, source = self._get_model_text_nlp())
+        t = GamsJob(ws, source = self._get_model_text_nlp_cv5())
         opt = GamsOptions(ws)
         opt.all_model_types = "conopt"
         opt.defines["gdxincname"] = db.name
@@ -352,10 +537,10 @@ def plot_decision_regions(X,y, classifier, test_idx = None, resolution = 0.01):
 
 
 if __name__ == "__main__":
-    X, y = make_classification(n_samples = 500, n_features = 4,  n_redundant=0, n_classes=2, random_state=1)
+    X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     print X.shape
 
     svm_cl = svm_mpec()
-    svm_cl.fit(X, y)
+    svm_cl.fit(X, y, cv=5)
     print svm_cl.C
