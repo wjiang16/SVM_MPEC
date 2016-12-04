@@ -494,9 +494,10 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
                 try:
                     duality_gap_solution.append(s.level)
                 except:
-                    duality_gap_solution.append(s)
+                    duality_gap_solution.append(s.value)
 
         print duality_gap_solution
+        
         # # round solutions for numerical computations, e.g., returned 1.99999 from GAMS but it should be 2
         # self.dual_coef_ = np.round(self.dual_coef_, decimals= 8)
         # # print self.dual_coef_[self.dual_coef_>0]
