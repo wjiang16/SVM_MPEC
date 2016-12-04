@@ -340,7 +340,7 @@ lower_cons3_cv_51
 ;
 obj ..  L =e= 0.2*(sum(cv_1, B_cv_1(cv_1))/card(cv_1) + sum(cv_2, B_cv_2(cv_2))/card(cv_2) + sum(cv_3, B_cv_3(cv_3))/card(cv_3)
                 + sum(cv_4, B_cv_4(cv_4))/card(cv_4) + sum(cv_5, B_cv_5(cv_5))/card(cv_5)
-        ) + gap_cv_1 + gap_cv_2 + gap_cv_3 + gap_cv_4 + gap_cv_5 +100*(gap_cv_11  + gap_cv_21 +  gap_cv_31 +gap_cv_41 + gap_cv_51) ;
+        ) + 1*(gap_cv_1 + gap_cv_2 + gap_cv_3 + gap_cv_4 + gap_cv_5) +100*(gap_cv_11  + gap_cv_21 +  gap_cv_31 +gap_cv_41 + gap_cv_51) ;
 test_duality_cv_1 .. gap_cv_1 =e= sum(cv_1, B_cv_1(cv_1)*(sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11) + lambda_cv_1(cv_1));
 dual_cons1_cv_1(cv_1) .. sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11 + lambda_cv_1(cv_1) =g= 0;
 test_cons2_cv_1(cv_1) .. 1 - B_cv_1(cv_1) =g= 0;
@@ -480,6 +480,7 @@ Display L.l, C.l, gap_cv_1.l, gap_cv_11.l, gap_cv_2.l, gap_cv_21.l, gap_cv_3.l, 
         for gap in duality_gap_var:
             for s in t.out_db[gap]:
                 duality_gap_solution.append(s.level)
+        print duality_gap_solution
         # # round solutions for numerical computations, e.g., returned 1.99999 from GAMS but it should be 2
         # self.dual_coef_ = np.round(self.dual_coef_, decimals= 8)
         # # print self.dual_coef_[self.dual_coef_>0]
@@ -549,4 +550,4 @@ if __name__ == "__main__":
 
     svm_cl = svm_mpec()
     svm_cl.fit(X, y, cv=5)
-    print svm_cl.C
+    print 'optimal regularization parameter: ', svm_cl.C
