@@ -496,8 +496,11 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
                 except:
                     duality_gap_solution.append(s.value)
 
-        print duality_gap_solution
-        
+        print "duality gaps: ", duality_gap_solution
+
+        for l in t.out_db["L"]:
+            L = l.level
+        print 'Cross-validation error rate: ', L
         # # round solutions for numerical computations, e.g., returned 1.99999 from GAMS but it should be 2
         # self.dual_coef_ = np.round(self.dual_coef_, decimals= 8)
         # # print self.dual_coef_[self.dual_coef_>0]
@@ -563,7 +566,7 @@ def plot_decision_regions(X,y, classifier, test_idx = None, resolution = 0.01):
 if __name__ == "__main__":
     X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
-    print X.shape
+    # print X.shape
 
     svm_cl = svm_mpec()
     svm_cl.fit(X, y, cv=5)
