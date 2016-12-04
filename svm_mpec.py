@@ -249,7 +249,7 @@ $GDXin
 Positive Variable
 B_cv_1(cv_1)
 lambda_cv_1(cv_1)
-gap_cv_1
+gap_cv_1(cv_1)
 
 alpha_cv_11(cv_11)
 xi_cv_11(cv_11)
@@ -257,7 +257,7 @@ gap_cv_11
 
 B_cv_2(cv_2)
 lambda_cv_2(cv_2)
-gap_cv_2
+gap_cv_2(cv_2)
 
 alpha_cv_21(cv_21)
 xi_cv_21(cv_21)
@@ -265,7 +265,7 @@ gap_cv_21
 
 B_cv_3(cv_3)
 lambda_cv_3(cv_3)
-gap_cv_3
+gap_cv_3(cv_3)
 
 alpha_cv_31(cv_31)
 xi_cv_31(cv_31)
@@ -273,7 +273,7 @@ gap_cv_31
 
 B_cv_4(cv_4)
 lambda_cv_4(cv_4)
-gap_cv_4
+gap_cv_4(cv_4)
 
 alpha_cv_41(cv_41)
 xi_cv_41(cv_41)
@@ -281,7 +281,7 @@ gap_cv_41
 
 B_cv_5(cv_5)
 lambda_cv_5(cv_5)
-gap_cv_5
+gap_cv_5(cv_5)
 
 alpha_cv_51(cv_51)
 xi_cv_51(cv_51)
@@ -340,8 +340,8 @@ lower_cons3_cv_51
 ;
 obj ..  L =e= 0.2*(sum(cv_1, B_cv_1(cv_1))/card(cv_1) + sum(cv_2, B_cv_2(cv_2))/card(cv_2) + sum(cv_3, B_cv_3(cv_3))/card(cv_3)
                 + sum(cv_4, B_cv_4(cv_4))/card(cv_4) + sum(cv_5, B_cv_5(cv_5))/card(cv_5)
-        ) + 1*(gap_cv_1 + gap_cv_2 + gap_cv_3 + gap_cv_4 + gap_cv_5) +100*(gap_cv_11  + gap_cv_21 +  gap_cv_31 +gap_cv_41 + gap_cv_51) ;
-test_duality_cv_1 .. gap_cv_1 =e= sum(cv_1, B_cv_1(cv_1)*(sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11) + lambda_cv_1(cv_1));
+        ) + 1*(sum(cv_1, gap_cv_1(cv_1)) + sum(cv_2, gap_cv_2(cv_2)) + sum(cv_3, gap_cv_3(cv_3)) +sum(cv_4, gap_cv_4(cv_4)) + sum(cv_5, gap_cv_5(cv_5))) +100*(gap_cv_11  + gap_cv_21 +  gap_cv_31 +gap_cv_41 + gap_cv_51) ;
+test_duality_cv_1(cv_1) .. gap_cv_1(cv_1) =e=  B_cv_1(cv_1)*(sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11) + lambda_cv_1(cv_1);
 dual_cons1_cv_1(cv_1) .. sum(cv_11, alpha_cv_11(cv_11) * K_y(cv_1, cv_11) * K_x(cv_1,cv_11)) + y(cv_1) * beta_cv_11 + lambda_cv_1(cv_1) =g= 0;
 test_cons2_cv_1(cv_1) .. 1 - B_cv_1(cv_1) =g= 0;
 
@@ -350,7 +350,7 @@ lower_cons1_cv_11(cv_11) .. C - alpha_cv_11(cv_11) =g= 0;
 lower_cons2_cv_11(cv_11) .. sum(z1, alpha_cv_11(z1) * K_y(cv_11, z1) * K_x(cv_11,z1)) + y(cv_11) * beta_cv_11 - (1-xi_cv_11(cv_11)) =g= 0;
 lower_cons3_cv_11 .. sum(cv_11,alpha_cv_11(cv_11) * y(cv_11) ) =e= 0;
 
-test_duality_cv_2 .. gap_cv_2 =e= sum(cv_2, B_cv_2(cv_2)*(sum(cv_21, alpha_cv_21(cv_21) * K_y(cv_2, cv_21) * K_x(cv_2,cv_21)) + y(cv_2) * beta_cv_21) + lambda_cv_2(cv_2));
+test_duality_cv_2(cv_2) .. gap_cv_2(cv_2) =e=  B_cv_2(cv_2)*(sum(cv_21, alpha_cv_21(cv_21) * K_y(cv_2, cv_21) * K_x(cv_2,cv_21)) + y(cv_2) * beta_cv_21) + lambda_cv_2(cv_2);
 dual_cons1_cv_2(cv_2) .. sum(cv_21, alpha_cv_21(cv_21) * K_y(cv_2, cv_21) * K_x(cv_2,cv_21)) + y(cv_2) * beta_cv_21 + lambda_cv_2(cv_2) =g= 0;
 test_cons2_cv_2(cv_2) .. 1 - B_cv_2(cv_2) =g= 0;
 
@@ -359,7 +359,7 @@ lower_cons1_cv_21(cv_21) .. C - alpha_cv_21(cv_21) =g= 0;
 lower_cons2_cv_21(cv_21) .. sum(z2, alpha_cv_21(z2) * K_y(cv_21, z2) * K_x(cv_21,z2)) + y(cv_21) * beta_cv_21 - (1-xi_cv_21(cv_21)) =g= 0;
 lower_cons3_cv_21 .. sum(cv_21,alpha_cv_21(cv_21) * y(cv_21) ) =e= 0;
 
-test_duality_cv_3 .. gap_cv_3 =e= sum(cv_3, B_cv_3(cv_3)*(sum(cv_31, alpha_cv_31(cv_31) * K_y(cv_3, cv_31) * K_x(cv_3,cv_31)) + y(cv_3) * beta_cv_31) + lambda_cv_3(cv_3));
+test_duality_cv_3(cv_3) .. gap_cv_3(cv_3) =e=  B_cv_3(cv_3)*(sum(cv_31, alpha_cv_31(cv_31) * K_y(cv_3, cv_31) * K_x(cv_3,cv_31)) + y(cv_3) * beta_cv_31) + lambda_cv_3(cv_3);
 dual_cons1_cv_3(cv_3) .. sum(cv_31, alpha_cv_31(cv_31) * K_y(cv_3, cv_31) * K_x(cv_3,cv_31)) + y(cv_3) * beta_cv_31 + lambda_cv_3(cv_3) =g= 0;
 test_cons2_cv_3(cv_3) .. 1 - B_cv_3(cv_3) =g= 0;
 
@@ -368,7 +368,7 @@ lower_cons1_cv_31(cv_31) .. C - alpha_cv_31(cv_31) =g= 0;
 lower_cons2_cv_31(cv_31) .. sum(z3, alpha_cv_31(z3) * K_y(cv_31, z3) * K_x(cv_31,z3)) + y(cv_31) * beta_cv_31 - (1-xi_cv_31(cv_31)) =g= 0;
 lower_cons3_cv_31 .. sum(cv_31,alpha_cv_31(cv_31) * y(cv_31) ) =e= 0;
 
-test_duality_cv_4 .. gap_cv_4 =e= sum(cv_4, B_cv_4(cv_4)*(sum(cv_41, alpha_cv_41(cv_41) * K_y(cv_4, cv_41) * K_x(cv_4,cv_41)) + y(cv_4) * beta_cv_41) + lambda_cv_4(cv_4));
+test_duality_cv_4(cv_4) .. gap_cv_4(cv_4) =e=  B_cv_4(cv_4)*(sum(cv_41, alpha_cv_41(cv_41) * K_y(cv_4, cv_41) * K_x(cv_4,cv_41)) + y(cv_4) * beta_cv_41) + lambda_cv_4(cv_4);
 dual_cons1_cv_4(cv_4) .. sum(cv_41, alpha_cv_41(cv_41) * K_y(cv_4, cv_41) * K_x(cv_4,cv_41)) + y(cv_4) * beta_cv_41 + lambda_cv_4(cv_4) =g= 0;
 test_cons2_cv_4(cv_4) .. 1 - B_cv_4(cv_4) =g= 0;
 
@@ -377,7 +377,7 @@ lower_cons1_cv_41(cv_41) .. C - alpha_cv_41(cv_41) =g= 0;
 lower_cons2_cv_41(cv_41) .. sum(z4, alpha_cv_41(z4) * K_y(cv_41, z4) * K_x(cv_41,z4)) + y(cv_41) * beta_cv_41 - (1-xi_cv_41(cv_41)) =g= 0;
 lower_cons3_cv_41 .. sum(cv_41,alpha_cv_41(cv_41) * y(cv_41) ) =e= 0;
 
-test_duality_cv_5 .. gap_cv_5 =e= sum(cv_5, B_cv_5(cv_5)*(sum(cv_51, alpha_cv_51(cv_51) * K_y(cv_5, cv_51) * K_x(cv_5,cv_51)) + y(cv_5) * beta_cv_51) + lambda_cv_5(cv_5));
+test_duality_cv_5(cv_5) .. gap_cv_5(cv_5) =e=  B_cv_5(cv_5)*(sum(cv_51, alpha_cv_51(cv_51) * K_y(cv_5, cv_51) * K_x(cv_5,cv_51)) + y(cv_5) * beta_cv_51) + lambda_cv_5(cv_5);
 dual_cons1_cv_5(cv_5) .. sum(cv_51, alpha_cv_51(cv_51) * K_y(cv_5, cv_51) * K_x(cv_5,cv_51)) + y(cv_5) * beta_cv_51 + lambda_cv_5(cv_5) =g= 0;
 test_cons2_cv_5(cv_5) .. 1 - B_cv_5(cv_5) =g= 0;
 
@@ -386,17 +386,29 @@ lower_cons1_cv_51(cv_51) .. C - alpha_cv_51(cv_51) =g= 0;
 lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51,z5)) + y(cv_51) * beta_cv_51 - (1-xi_cv_51(cv_51)) =g= 0;
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
-C.l = 30;
+
+C.l = 300;
 alpha_cv_11.l(cv_11) = 2;
 alpha_cv_21.l(cv_21) = 2;
 alpha_cv_31.l(cv_31) = 2;
 alpha_cv_41.l(cv_41) = 2;
 alpha_cv_51.l(cv_51) = 2;
 Model svm_bilevel /all/;
-
+Parameters
+gap_cv1
+gap_cv2
+gap_cv3
+gap_cv4
+gap_cv5
+;
 *option MPEC=nlpec
 Solve svm_bilevel using nlp minimizing L;
-Display L.l, C.l, gap_cv_1.l, gap_cv_11.l, gap_cv_2.l, gap_cv_21.l, gap_cv_3.l, gap_cv_31.l,gap_cv_4.l, gap_cv_41.l, gap_cv_5.l, gap_cv_51.l
+gap_cv1 = sum(cv_1, gap_cv_1.l(cv_1));
+gap_cv2 = sum(cv_2, gap_cv_2.l(cv_2));
+gap_cv3 = sum(cv_3, gap_cv_3.l(cv_3));
+gap_cv4 = sum(cv_4, gap_cv_4.l(cv_4));
+gap_cv5 = sum(cv_5, gap_cv_5.l(cv_5));
+Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31.l,gap_cv4, gap_cv_41.l, gap_cv5, gap_cv_51.l
         '''
 
     def fit(self, X, y, cv = 2):
@@ -474,12 +486,16 @@ Display L.l, C.l, gap_cv_1.l, gap_cv_11.l, gap_cv_2.l, gap_cv_21.l, gap_cv_3.l, 
         # Retrieve solution from output database
         for c in t.out_db["C"]:
             self.C = c.level
-        duality_gap_var = ['gap_cv_1', 'gap_cv_11', 'gap_cv_2', 'gap_cv_21', 'gap_cv_3', 'gap_cv_31', 'gap_cv_4',
-                               'gap_cv_41', 'gap_cv_5' , 'gap_cv_51']
+        duality_gap_var = ['gap_cv1', 'gap_cv_11', 'gap_cv2', 'gap_cv_21', 'gap_cv3', 'gap_cv_31', 'gap_cv4',
+                               'gap_cv_41', 'gap_cv5' , 'gap_cv_51']
         duality_gap_solution = []
         for gap in duality_gap_var:
             for s in t.out_db[gap]:
-                duality_gap_solution.append(s.level)
+                try:
+                    duality_gap_solution.append(s.level)
+                except:
+                    duality_gap_solution.append(s)
+
         print duality_gap_solution
         # # round solutions for numerical computations, e.g., returned 1.99999 from GAMS but it should be 2
         # self.dual_coef_ = np.round(self.dual_coef_, decimals= 8)
