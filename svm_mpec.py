@@ -11,6 +11,9 @@ from sklearn.datasets import make_classification
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold
+from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
 class svm_mpec():
     """
     Attributes
@@ -35,6 +38,7 @@ class svm_mpec():
 
     def __init__(self, ):
         self.C = None
+        self.accuracy = None # cross-validation accurary from solving the MPEC problem
         self.support = []
         self.support_vectors_ = None
         self.non_margin_support_vectors = None
@@ -215,6 +219,7 @@ Solve svm_bilevel using nlp minimizing L;
 Display C.l
 '''
     def _get_model_text_nlp_cv5(self):
+        # GAMS model for solving the MPEC problem with 5-fold cross-validation
         return '''
 Sets
 i number of data samples
@@ -387,7 +392,7 @@ lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
 
-C.l = 300;
+C.l = 5;
 alpha_cv_11.l(cv_11) = 2;
 alpha_cv_21.l(cv_21) = 2;
 alpha_cv_31.l(cv_31) = 2;
@@ -496,49 +501,22 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
                 except:
                     duality_gap_solution.append(s.value)
 
-        print "duality gaps: ", duality_gap_solution
+        print "Duality gaps: ", duality_gap_solution
 
         for l in t.out_db["L"]:
-            L = l.level
-        print 'Cross-validation error rate: ', L
-        # # round solutions for numerical computations, e.g., returned 1.99999 from GAMS but it should be 2
-        # self.dual_coef_ = np.round(self.dual_coef_, decimals= 8)
-        # # print self.dual_coef_[self.dual_coef_>0]
-        # temp = np.dot(np.asmatrix(np.multiply(y, self.dual_coef_)), X)
-        # self.coef_ = np.sum(temp, axis=0)
-        #
-        # self.support = np.where(np.logical_and((0< self.dual_coef_), (self.dual_coef_<self.C)))[0]
-        # self.support_vectors_ = X[self.support,:]
-        #
-        # # indices of data sample used to comput beta_0
-        # intercept_ind = self.support[0]
-        # # y was casted into matrix
-        # self.intercept = 1/y[0,intercept_ind] - np.inner(X[intercept_ind,:], self.coef_)
-        #
-        # # check the support vector when dual_coef == self.C
-        # # temp_ind = np.where(self.dual_coef_==self.C)[0]
-        # # digamamma = 1- np.multiply(y[0,temp_ind],(np.dot(X[temp_ind,:], self.coef_.T) +self.intercept))
-        # # digamamma = np.ravel(digamamma)
-        # #
-        # # self.support = np.append(self.support,temp_ind[digamamma==0])
-        # non_margin_ind = np.where(self.dual_coef_ == self.C)[0]
-        # self.non_margin_support_vectors = X[non_margin_ind,:]
-        # self.n_support_.append(np.sum(y[0,self.support] == -1)) # number of class -1 support vectors
-        # self.n_support_.append(np.sum(y[0,self.support] == 1)) # number of class 1 support vectors
+            self.accuracy = l.level
+        print 'Cross-validation error rate: ', self.accuracy
 
-    def predict(self, X):
-        """
+def grid_search_svm(X, y):
+    clf_SVM = SVC(kernel = 'linear')
+    pipe = Pipeline([('svm', clf_SVM)])
+    # parameters = {'svm__gamma':np.arange(0.008, 0.04,0.002), 'svm__C':np.arange(0.05,1,0.1), 'svm__kernel':['rbf'] }
+    parameters = { 'svm__C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+    grid = GridSearchCV(estimator = pipe, param_grid = parameters, cv = 10, scoring = "accuracy")
+    grid.fit(X,y)
+    return grid.best_params_, grid.best_score_
 
-        :param X: numpy array, [number of sample, NO of features], feature already scaled
-        :return: array of -1 or 1
-        """
-        def predict_single(a):
-            temp = np.inner(a, self.coef_) + self.intercept
-            label = 1 if temp >= 0 else -1
-            return label
-        return np.apply_along_axis(predict_single,1, X)
-
-def plot_decision_regions(X,y, classifier, test_idx = None, resolution = 0.01):
+def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
     markers = ('s','x','o','^','v')
     colors = ('red','blue','lightgreen','gray','cyan')
     cmap = ListedColormap(colors[:len(np.unique(y))])
@@ -558,6 +536,7 @@ def plot_decision_regions(X,y, classifier, test_idx = None, resolution = 0.01):
     if test_idx:
         X_test, y_test = X[test_idx, :], y[test_idx]
         plt.scatter(X_test[:,0], X_test[:,1], c='', alpha = 1.0, linewidths=1, marker ='o', s=55, label='test set')
+
     plt.scatter(classifier.support_vectors_[:,0], classifier.support_vectors_[:, 1], c='', alpha=1.0, linewidths=1, marker='o', s=55, label='margin support vector')
     # plt.legend(loc='best')
     plt.show()
@@ -567,7 +546,14 @@ if __name__ == "__main__":
     X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
-
     svm_cl = svm_mpec()
-    svm_cl.fit(X, y, cv=5)
-    print 'optimal regularization parameter: ', svm_cl.C
+    svm_cl.fit(X, y)
+    print 'Optimal regularization parameter solved using MPEC method: ', svm_cl.C
+    print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_cl.accuracy
+
+    grid_search_score, grid_search_C = grid_search_svm(X,y)
+
+    print 'Optimal regularization parameter solved using grid search method: ', grid_search_C
+    print 'Optimal cross-validation accuracy solved using grid search method: ', grid_search_score
+
+
