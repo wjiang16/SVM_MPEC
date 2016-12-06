@@ -557,8 +557,9 @@ def grid_search_cv_svm(X,y, param_list):
         i += 1
     print accuracies
     accuracy_cv = np.mean(accuracies, axis = 0)
+    print accuracy_cv
     best_score = max(accuracy_cv)
-    best_C = param_list[np.argmax(best_score)]
+    best_C = param_list[np.argmax(accuracy_cv)]
 
     return best_C, best_score
 
@@ -600,14 +601,14 @@ if __name__ == "__main__":
     svm_cl.fit(X, y)
     t1 = time.time()
 
-    temp, svm_mpec_score = grid_search_cv_svm(X, y, [svm_cl.C]) # refit the svm with the regularization parameter solved as bilevel problem and obtain the cross-validation accuracy
+    # temp, svm_mpec_score = grid_search_cv_svm(X, y, [svm_cl.C]) # refit the svm with the regularization parameter solved as bilevel problem and obtain the cross-validation accuracy
 
-    print 'Optimal regularization parameter solved using MPEC method: ', svm_cl.C, svm_cl.accuracy
-    print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_mpec_score
+    print 'Optimal regularization parameter solved using MPEC method: ', svm_cl.C
+    print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_cl.accuracy
     print 'Running time MPEC: ', t1 - t0
 
     t2 = time.time()
-    param = [0.1, 1, 10, 100]
+    param = [svm_cl.C, 0.1, 1, 10, 100]
     grid_search_C, grid_search_score  = grid_search_cv_svm(X, y, param)
     t3 = time.time()
 
