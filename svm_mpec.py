@@ -509,12 +509,19 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
             self.accuracy = 1-l.level
         # print 'Cross-validation error rate: ', self.accuracy
 
-def grid_search_svm(X, y):
+def grid_search_svm(X, y, param):
     # grid search svm using sklearn SVM package
+    """
+
+    :param X: numpy array, row is sample, column is feature
+    :param y: numpy array, label
+    :param param_list: a list of float, value for C
+    :return: two float: best C, best cross-validation accuracy
+    """
     clf_SVM = SVC(kernel = 'linear')
     pipe = Pipeline([('svm', clf_SVM)])
     # parameters = {'svm__gamma':np.arange(0.008, 0.04,0.002), 'svm__C':np.arange(0.05,1,0.1), 'svm__kernel':['rbf'] }
-    parameters = { 'svm__C': [0.00001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+    parameters = { 'svm__C': param}
     grid = GridSearchCV(estimator = pipe, param_grid = parameters, cv = 5, scoring = "accuracy")
     grid.fit(X,y)
     return grid.best_params_, grid.best_score_
@@ -592,7 +599,7 @@ def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
 
 if __name__ == "__main__":
     # generate random binary class data set
-    X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
+    X, y = make_classification(n_samples = 600, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
     t0 = time.time()
@@ -605,8 +612,8 @@ if __name__ == "__main__":
     print 'Running time MPEC: ', t1 - t0
 
     t2 = time.time()
-    param = [svm_cl.C, 0.1, 1, 10, 100]
-    grid_search_C, grid_search_score  = grid_search_cv_svm(X, y, param)
+    param = [ svm_cl.C, 0.001,0.1, 1, 10, 100]
+    grid_search_C, grid_search_score  = grid_search_svm(X, y, param)
     t3 = time.time()
 
     print 'Optimal regularization parameter solved using grid search method: ', grid_search_C
