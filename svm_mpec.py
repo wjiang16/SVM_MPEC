@@ -5,6 +5,7 @@
 
 import numpy as np
 from gams import *
+from svm import svm
 import os
 import sys
 from sklearn.datasets import make_classification
@@ -510,6 +511,7 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
         print 'Cross-validation error rate: ', self.accuracy
 
 def grid_search_svm(X, y):
+    # grid search svm using sklearn SVM package
     clf_SVM = SVC(kernel = 'linear')
     pipe = Pipeline([('svm', clf_SVM)])
     # parameters = {'svm__gamma':np.arange(0.008, 0.04,0.002), 'svm__C':np.arange(0.05,1,0.1), 'svm__kernel':['rbf'] }
@@ -517,6 +519,48 @@ def grid_search_svm(X, y):
     grid = GridSearchCV(estimator = pipe, param_grid = parameters, cv = 5, scoring = "accuracy")
     grid.fit(X,y)
     return grid.best_params_, grid.best_score_
+
+def accuracy(y_true, y_pred):
+    """
+
+    :param y_train: binary array
+    :param y_test: binary array
+    :return: float
+    """
+    wrong_pred = np.count_nonzero(y_true - y_pred)
+    return 1 - wrong_pred/float(len(y_true))
+
+def grid_search_cv_svm(X,y, param_list):
+    """
+
+    :param X: numpy array, row is sample, column is feature
+    :param y: numpy array, label
+    :param param_list: a list of float, value for C
+    :return: two float: best C, best cross-validation accuracy
+    """
+    # grid search svm using my own implementation, to make fair comparison, use this function
+    #  instead of function 'grid_search_svm', which uses a highly optimized library 'libsvm'
+    ########## Split data into k fold for cross-validation ##########
+    cv = 5
+    skf = StratifiedKFold(n_splits=cv)
+    i = 0
+    for train_index, test_index in skf.split(X, y):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        accuracies = np.empty([cv, len(param_list)])
+        for ind, c in enumerate(param_list):
+            svm_cl = svm(c)
+            svm_cl.fit(X_train,y_train)
+            y_pred = svm_cl.predict(X_test)
+            accuracies[i,ind] = accuracy(y_train, y_pred)
+        i += 1
+    accuracy_cv = np.mean(accuracies, axis = 1)
+    best_score = max(accuracy_cv)
+    best_C = param_list[np.argmax(best_score)]
+
+    return best_C, best_score
+
+
 
 def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
     markers = ('s','x','o','^','v')
@@ -557,7 +601,8 @@ if __name__ == "__main__":
     print 'Running time MPEC: ', t1 - t0
 
     t2 = time.time()
-    grid_search_C, grid_search_score  = grid_search_svm(X,y)
+    param = [0.00001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+    grid_search_C, grid_search_score  = grid_search_cv_svm(X, y, param)
     t3 = time.time()
 
     print 'Optimal regularization parameter solved using grid search method: ', grid_search_C
