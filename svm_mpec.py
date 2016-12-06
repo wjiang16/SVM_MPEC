@@ -395,7 +395,7 @@ lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
 
-C.l = 1;
+C.l = 10;
 alpha_cv_11.l(cv_11) = 0.5;
 alpha_cv_21.l(cv_21) = 0.5;
 alpha_cv_31.l(cv_31) = 0.5;
