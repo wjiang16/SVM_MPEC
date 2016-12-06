@@ -4,10 +4,7 @@
 # 11/26/2016
 
 import numpy as np
-import pandas as pd
 from gams import *
-import os
-import sys
 from sklearn.datasets import make_classification
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
@@ -315,6 +312,6 @@ if __name__ == "__main__":
     # svm_cl.fit(X, y)
     # plot_decision_regions(X, y, svm_cl)
 
-    svm_cl = svm(C=0.01)
+    svm_cl = svm(C=0.1)
     svm_cl.fit(X, y)
     plot_decision_regions(X, y, svm_cl)

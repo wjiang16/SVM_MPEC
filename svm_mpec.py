@@ -6,8 +6,6 @@
 import numpy as np
 from gams import *
 from svm import svm
-import os
-import sys
 from sklearn.datasets import make_classification
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
@@ -15,6 +13,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
+
 import time
 
 class svm_mpec():
