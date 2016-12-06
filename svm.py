@@ -153,9 +153,9 @@ Solve svm_dual using QCP maximizing L;
         self.coef_ = np.dot(np.asmatrix(np.multiply(y, self.dual_coef_)), X)
         # self.coef_ = np.sum(temp, axis=0)
         self._get_support_ind(y)
-        print self.support
-        print self.dual_coef_[self.support]
-        print y[self.support]
+        # print self.support
+        # print self.dual_coef_[self.support]
+        # print y[self.support]
 
         self.support_vectors_ = X[self.support,:]
 

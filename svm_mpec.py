@@ -552,7 +552,7 @@ def grid_search_cv_svm(X,y, param_list):
             svm_cl = svm(c)
             svm_cl.fit(X_train,y_train)
             y_pred = svm_cl.predict(X_test)
-            accuracies[i,ind] = accuracy(y_train, y_pred)
+            accuracies[i,ind] = accuracy(y_test, y_pred)
         i += 1
     accuracy_cv = np.mean(accuracies, axis = 1)
     best_score = max(accuracy_cv)
@@ -589,7 +589,8 @@ def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
 
 
 if __name__ == "__main__":
-    X, y = make_classification(n_samples = 500, n_features = 10,  n_redundant=0, n_classes=2, random_state=1)
+    # generate random binary class data set
+    X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
     t0 = time.time()
@@ -601,7 +602,7 @@ if __name__ == "__main__":
     print 'Running time MPEC: ', t1 - t0
 
     t2 = time.time()
-    param = [0.00001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+    param = [ 0.05, 0.1, 1, 10, 100, 1000]
     grid_search_C, grid_search_score  = grid_search_cv_svm(X, y, param)
     t3 = time.time()
 
