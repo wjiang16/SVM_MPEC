@@ -395,7 +395,7 @@ lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
 
-C.l = 300;
+C.l = 30;
 alpha_cv_11.l(cv_11) = 2;
 alpha_cv_21.l(cv_21) = 2;
 alpha_cv_31.l(cv_31) = 2;
@@ -427,7 +427,7 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
                     otherwise, solve the primal problem
         """
         ########## Split data into k fold for cross-validation ##########
-        skf = StratifiedKFold(n_splits= cv)
+        skf = StratifiedKFold(n_splits= cv, random_state=1)
         # indices of training data for each splitting a list of array
         cv_train_indices =[]
         cv_test_indices = []
@@ -542,7 +542,7 @@ def grid_search_cv_svm(X,y, param_list):
     #  instead of function 'grid_search_svm', which uses a highly optimized library 'libsvm'
     ########## Split data into k fold for cross-validation ##########
     cv = 5
-    skf = StratifiedKFold(n_splits=cv)
+    skf = StratifiedKFold(n_splits=cv, random_state=1)
     i = 0
     for train_index, test_index in skf.split(X, y):
         X_train, X_test = X[train_index], X[test_index]
@@ -590,7 +590,7 @@ def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
 
 if __name__ == "__main__":
     # generate random binary class data set
-    X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
+    X, y = make_classification(n_samples = 200, n_features = 20,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
     t0 = time.time()
@@ -602,11 +602,11 @@ if __name__ == "__main__":
     print 'Running time MPEC: ', t1 - t0
 
     t2 = time.time()
-    param = [ 0.05, 0.1, 1, 10, 100, 1000]
+    param = [ 0.05, 0.1]
     grid_search_C, grid_search_score  = grid_search_cv_svm(X, y, param)
     t3 = time.time()
 
     print 'Optimal regularization parameter solved using grid search method: ', grid_search_C
     print 'Optimal cross-validation accuracy solved using grid search method: ', grid_search_score
-    print 'Running time: ', t3 - t2
+    print 'Running time grid search: ', t3 - t2
 
