@@ -508,7 +508,7 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
 
         for l in t.out_db["L"]:
             self.accuracy = 1-l.level
-        print 'Cross-validation error rate: ', self.accuracy
+        # print 'Cross-validation error rate: ', self.accuracy
 
 def grid_search_svm(X, y):
     # grid search svm using sklearn SVM package
@@ -544,16 +544,18 @@ def grid_search_cv_svm(X,y, param_list):
     cv = 5
     skf = StratifiedKFold(n_splits=cv, random_state=1)
     i = 0
+    accuracies = np.empty([cv, len(param_list)])
     for train_index, test_index in skf.split(X, y):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
-        accuracies = np.empty([cv, len(param_list)])
+
         for ind, c in enumerate(param_list):
             svm_cl = svm(c)
             svm_cl.fit(X_train,y_train)
             y_pred = svm_cl.predict(X_test)
             accuracies[i,ind] = accuracy(y_test, y_pred)
         i += 1
+    print accuracies
     accuracy_cv = np.mean(accuracies, axis = 1)
     best_score = max(accuracy_cv)
     best_C = param_list[np.argmax(best_score)]
@@ -590,19 +592,22 @@ def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
 
 if __name__ == "__main__":
     # generate random binary class data set
-    X, y = make_classification(n_samples = 200, n_features = 20,  n_redundant=0, n_classes=2, random_state=1)
+    X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
     t0 = time.time()
     svm_cl = svm_mpec()
     svm_cl.fit(X, y)
     t1 = time.time()
+
+    temp, svm_mpec_score = grid_search_cv_svm(X, y, [svm_cl.C]) # refit the svm with the regularization parameter solved as bilevel problem and obtain the cross-validation accuracy
+
     print 'Optimal regularization parameter solved using MPEC method: ', svm_cl.C
-    print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_cl.accuracy
+    print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_mpec_score
     print 'Running time MPEC: ', t1 - t0
 
     t2 = time.time()
-    param = [ 0.05, 0.1]
+    param = [0.1, 1, 10, 100]
     grid_search_C, grid_search_score  = grid_search_cv_svm(X, y, param)
     t3 = time.time()
 
