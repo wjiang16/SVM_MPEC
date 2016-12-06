@@ -14,6 +14,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
+import time
+
 class svm_mpec():
     """
     Attributes
@@ -392,7 +394,7 @@ lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
 
-C.l = 5;
+C.l = 300;
 alpha_cv_11.l(cv_11) = 2;
 alpha_cv_21.l(cv_21) = 2;
 alpha_cv_31.l(cv_31) = 2;
@@ -416,7 +418,7 @@ gap_cv5 = sum(cv_5, gap_cv_5.l(cv_5));
 Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31.l,gap_cv4, gap_cv_41.l, gap_cv5, gap_cv_51.l
         '''
 
-    def fit(self, X, y, cv = 2):
+    def fit(self, X, y, cv = 5):
         """
         X: numpy array, [number of sample, NO of features], feature already scaled
         y: array of -1 or 1
@@ -504,15 +506,15 @@ Display L.l, C.l, gap_cv1, gap_cv_11.l, gap_cv2, gap_cv_21.l, gap_cv3, gap_cv_31
         print "Duality gaps: ", duality_gap_solution
 
         for l in t.out_db["L"]:
-            self.accuracy = l.level
+            self.accuracy = 1-l.level
         print 'Cross-validation error rate: ', self.accuracy
 
 def grid_search_svm(X, y):
     clf_SVM = SVC(kernel = 'linear')
     pipe = Pipeline([('svm', clf_SVM)])
     # parameters = {'svm__gamma':np.arange(0.008, 0.04,0.002), 'svm__C':np.arange(0.05,1,0.1), 'svm__kernel':['rbf'] }
-    parameters = { 'svm__C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
-    grid = GridSearchCV(estimator = pipe, param_grid = parameters, cv = 10, scoring = "accuracy")
+    parameters = { 'svm__C': [0.00001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+    grid = GridSearchCV(estimator = pipe, param_grid = parameters, cv = 5, scoring = "accuracy")
     grid.fit(X,y)
     return grid.best_params_, grid.best_score_
 
@@ -543,17 +545,22 @@ def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
 
 
 if __name__ == "__main__":
-    X, y = make_classification(n_samples = 500, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
+    X, y = make_classification(n_samples = 500, n_features = 10,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
+    t0 = time.time()
     svm_cl = svm_mpec()
     svm_cl.fit(X, y)
+    t1 = time.time()
     print 'Optimal regularization parameter solved using MPEC method: ', svm_cl.C
     print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_cl.accuracy
+    print 'Running time MPEC: ', t1 - t0
 
-    grid_search_score, grid_search_C = grid_search_svm(X,y)
+    t2 = time.time()
+    grid_search_C, grid_search_score  = grid_search_svm(X,y)
+    t3 = time.time()
 
     print 'Optimal regularization parameter solved using grid search method: ', grid_search_C
     print 'Optimal cross-validation accuracy solved using grid search method: ', grid_search_score
-
+    print 'Running time: ', t3 - t2
 
