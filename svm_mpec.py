@@ -395,12 +395,12 @@ lower_cons2_cv_51(cv_51) .. sum(z5, alpha_cv_51(z5) * K_y(cv_51, z5) * K_x(cv_51
 lower_cons3_cv_51 .. sum(cv_51,alpha_cv_51(cv_51) * y(cv_51) ) =e= 0;
 
 
-C.l = 30;
-alpha_cv_11.l(cv_11) = 2;
-alpha_cv_21.l(cv_21) = 2;
-alpha_cv_31.l(cv_31) = 2;
-alpha_cv_41.l(cv_41) = 2;
-alpha_cv_51.l(cv_51) = 2;
+C.l = 1;
+alpha_cv_11.l(cv_11) = 0.5;
+alpha_cv_21.l(cv_21) = 0.5;
+alpha_cv_31.l(cv_31) = 0.5;
+alpha_cv_41.l(cv_41) = 0.5;
+alpha_cv_51.l(cv_51) = 0.5;
 Model svm_bilevel /all/;
 Parameters
 gap_cv1
@@ -555,9 +555,9 @@ def grid_search_cv_svm(X,y, param_list):
             y_pred = svm_cl.predict(X_test)
             accuracies[i,ind] = accuracy(y_test, y_pred)
         i += 1
-    print accuracies
+    # print accuracies
     accuracy_cv = np.mean(accuracies, axis = 0)
-    print accuracy_cv
+    print 'cross-validation accuracy for each fold: ', accuracy_cv
     best_score = max(accuracy_cv)
     best_C = param_list[np.argmax(accuracy_cv)]
 
@@ -600,8 +600,6 @@ if __name__ == "__main__":
     svm_cl = svm_mpec()
     svm_cl.fit(X, y)
     t1 = time.time()
-
-    # temp, svm_mpec_score = grid_search_cv_svm(X, y, [svm_cl.C]) # refit the svm with the regularization parameter solved as bilevel problem and obtain the cross-validation accuracy
 
     print 'Optimal regularization parameter solved using MPEC method: ', svm_cl.C
     print 'Optimal cross-validation accuracy solved using MPEC method: ', svm_cl.accuracy

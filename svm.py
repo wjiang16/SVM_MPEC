@@ -139,7 +139,7 @@ Solve svm_dual using QCP maximizing L;
 
         t = GamsJob(ws, source = self._get_model_text())
         opt = GamsOptions(ws)
-        opt.all_model_types = "conopt"
+        opt.all_model_types = "cplex"
         opt.defines["gdxincname"] = db.name
         t.run(opt, databases=db)
         ################################### GAMS solving QCP done ####################################################
