@@ -159,9 +159,15 @@ Solve svm_dual using QCP maximizing L;
 
         self.support_vectors_ = X[self.support,:]
 
-        # indices of data sample used to comput beta_0
-        intercept_ind = self.support[0]
+        # if there is no support margin vector, then parameter C is too small for the problem
+        # warn the user to provide a larger C
 
+        # indices of data sample used to comput beta_0
+        try:
+            intercept_ind = self.support[0]
+        except:
+            print('Parameter C too small for your data set, please provide a larger C')
+            raise
         # for i in intercept_ind:
         self.intercept = 1/y[intercept_ind] - np.inner(X[intercept_ind,:], self.coef_)
 
