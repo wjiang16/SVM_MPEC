@@ -569,8 +569,6 @@ def grid_search_cv_svm(X,y, param_list):
 
     return best_C, best_score
 
-
-
 def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
     markers = ('s','x','o','^','v')
     colors = ('red','blue','lightgreen','gray','cyan')
@@ -599,7 +597,7 @@ def plot_decision_regions(X, y, classifier, test_idx = None, resolution = 0.01):
 
 if __name__ == "__main__":
     # generate random binary class data set
-    X, y = make_classification(n_samples = 600, n_features = 2,  n_redundant=0, n_classes=2, random_state=1)
+    X, y = make_classification(n_samples = 400, n_features = 5,  n_redundant=0, n_classes=2, random_state=1)
     y[y==0] = -1
     # print X.shape
     t0 = time.time()
